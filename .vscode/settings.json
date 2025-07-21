@@ -1,0 +1,18 @@
+{
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "version": "v1",
+      "apiPath": "/api/{{$shared version}}"
+    },
+    "dev": {
+      "host": "localhost",
+      "port": "8080",
+      "protocol": "http",
+      "baseUrl": "{{$dev protocol}}://{{$dev host}}:{{$dev port}}",
+      "baseApiPath": "{{$dev baseUrl}}{{$shared apiPath}}"
+    }
+  },
+  "gopls": {
+    "buildFlags": ["-tags=wireinject"]
+  }
+}

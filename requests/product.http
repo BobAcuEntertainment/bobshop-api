@@ -1,0 +1,43 @@
+@group = products
+@productId = "bbfb4a96-c334-4492-b16d-6f886a429f1a"
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTMzMzIzNTksImlhdCI6MTc1MzA3MzE1OSwicm9sZSI6InVzZXIiLCJzdWIiOiIwMTk4MmIzZS1mMGExLTc4ZTQtODM2Ny1kOWU1YjQ3NTc4NWYifQ.Kgboaq7miAnFPv261D6aupHcSU5-_El4A0vvWxddlsA
+
+### Add product
+POST {{baseApiPath}}/{{group}}
+Content-Type: application/json
+Cookie: access_token={{token}}
+
+{
+  "name": "Product 1"
+}
+
+### Update product
+PUT {{baseApiPath}}/{{group}}/{{productId}}
+Content-Type: application/json
+Cookie: access_token={{token}}
+
+{
+  "name": "Product 1a"
+}
+
+### Delete product
+DELETE {{baseApiPath}}/{{group}}/{{productId}}
+Cookie: access_token={{token}}
+
+### Get product by id
+GET {{baseApiPath}}/{{group}}/{{productId}}
+
+### Get all products
+GET {{baseApiPath}}/{{group}}
+
+### Get products by name
+GET {{baseApiPath}}/{{group}}?name=Product+2
+
+### Get products by limit
+GET {{baseApiPath}}/{{group}}?limit=1
+
+### Get products by limit and cursor
+GET {{baseApiPath}}/{{group}}?limit=1&cursor={{productId}}
+
+### Get products with pagination and sort
+GET {{baseApiPath}}/{{group}}?limit=10&sort=latest

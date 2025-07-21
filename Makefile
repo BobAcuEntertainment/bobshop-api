@@ -1,17 +1,26 @@
-include env/config.env
+DEFAULT_GOAL := build
 
-APP_NAME=bobshop-api
-VERSION=v1.0.0_init
+.PHONY: check style diag build run dev docs
 
-REPO=ghcr.io/${REPO_USERNAME}
+check:
+	go mod tidy && go mod verify && go vet ./...
 
-run:
-	nodemon --exec go run main.go --signal SIGTERM
+style:
+	goimports-reviser -rm-unused -separate-named -set-alias \
+	-imports-order std,general,company,project,blanked,dotted \
+	-project-name bobshop \
+	-format ./...
 
-login:
-	echo ${REPO_SECRET_KEY} | docker login ghcr.io --username ${REPO_USERNAME} --password-stdin
+diag: check style
 
-image: login
-	docker build -f Dockerfile -t ${REPO}/${APP_NAME}:${VERSION} .
-	docker push ${REPO}/${APP_NAME}:${VERSION}
-	docker rmi ${REPO}/${APP_NAME}:${VERSION}
+build: diag
+	go build -o bin/app cmd/server/main.go
+
+run: build
+	./bin/app
+
+dev:
+	air
+
+docs:
+	swag init -g cmd/server/main.go

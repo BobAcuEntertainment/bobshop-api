@@ -1,0 +1,28 @@
+@group = auth
+
+### Sign up
+POST {{baseApiPath}}/{{group}}/signup
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "12345678"
+}
+
+### Sign in
+POST {{baseApiPath}}/{{group}}/signin
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "12345678"
+}
+
+### Sign out
+POST {{baseApiPath}}/{{group}}/signout
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "12345678"
+}
