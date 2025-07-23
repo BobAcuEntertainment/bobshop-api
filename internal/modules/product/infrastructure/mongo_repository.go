@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -55,6 +56,24 @@ func (r *MongoProductRepository) UpdateFields(ctx context.Context, productID uui
 		return domain.ErrProductNotFound
 	}
 	return nil
+}
+
+func (r *MongoProductRepository) AddReview(ctx context.Context, review *domain.Review) error {
+	filter := bson.M{"user_id": review.UserID, "product_id": review.ProductID}
+	count, err := r.collection.CountDocuments(ctx, filter)
+	if err != nil {
+			return err
+	}
+	if count > 0 {
+			return domain.ErrReviewAlreadyExists
+	}
+	
+	update := bson.M{
+			"$push": bson.M{"reviews": review},
+			"$inc": bson.M{fmt.Sprintf("stars.%d", review.Rating-1): 1},
+	}
+
+	return r.UpdateFields(ctx, review.ProductID, update)
 }
 
 func (r *MongoProductRepository) Delete(ctx context.Context, id uuid.UUID) error {

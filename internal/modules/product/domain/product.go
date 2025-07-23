@@ -57,16 +57,11 @@ func NewProductBuilder(name string, price uint32) *ProductBuilder {
 	}
 }
 
-func (b *ProductBuilder) Desc(desc string) *ProductBuilder {
+func (b *ProductBuilder) WithDesc(desc string) *ProductBuilder {
 	b.product.Desc = desc
 	return b
 }
 
 func (b *ProductBuilder) Build() *Product {
 	return b.product
-}
-
-func (p *Product) AddReview(review *Review) {
-	p.Reviews = append(p.Reviews, review)
-	p.Stars[review.Rating-1]++
 }

@@ -1,18 +1,8 @@
 package dto
 
-import (
-	"github.com/google/uuid"
-
-	"bobshop/internal/modules/product/domain"
-)
-
 type CreateProductRequest struct {
 	Name  string `json:"name" validate:"required"`
 	Price uint32 `json:"price" validate:"required"`
-}
-
-func ToDomain(r *CreateProductRequest) *domain.Product {
-	return domain.NewProductBuilder(r.Name, r.Price).Build()
 }
 
 type UpdateProductRequest struct {
@@ -25,6 +15,21 @@ type AddReviewRequest struct {
 	Comment string `json:"comment" validate:"omitempty"`
 }
 
-func (r *AddReviewRequest) ToDomain(productID, userID uuid.UUID) *domain.Review {
-	return domain.NewReview(productID, userID, r.Rating, r.Comment)
+type ListFilterRequest struct {
+	Name       *string  `query:"name" validate:"omitempty"`
+	Categories []string `query:"categories" validate:"omitempty,dive,required"`
+	Brands     []string `query:"brands" validate:"omitempty,dive,required"`
+	Vendor     *string  `query:"vendor" validate:"omitempty"`
+	Tags       []string `query:"tags" validate:"omitempty,dive,required"`
+	MinPrice   *uint32  `query:"min_price" validate:"omitempty"`
+	MaxPrice   *uint32  `query:"max_price" validate:"omitempty"`
+}
+
+type CursorPaginationRequest struct {
+	Cursor *string `query:"cursor" validate:"omitempty,base64"`
+	Limit  *int    `query:"limit" validate:"omitempty,min=1,max=100"`
+}
+
+type SortRequest struct {
+	SortBy *string `query:"sort" validate:"omitempty,oneof=price_asc price_desc latest popular"`
 }

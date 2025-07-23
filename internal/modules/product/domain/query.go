@@ -1,22 +1,22 @@
 package domain
 
 type ListFilter struct {
-	Name       *string  `query:"name" validate:"omitempty"`
-	Categories []string `query:"categories" validate:"omitempty,dive,required"`
-	Brands     []string `query:"brands" validate:"omitempty,dive,required"`
-	Vendor     *string  `query:"vendor" validate:"omitempty"`
-	Tags       []string `query:"tags" validate:"omitempty,dive,required"`
-	MinPrice   *uint32  `query:"min_price" validate:"omitempty"`
-	MaxPrice   *uint32  `query:"max_price" validate:"omitempty"`
+	Name       *string  `validate:"omitempty"`
+	Categories []string `validate:"omitempty,dive,required"`
+	Brands     []string `validate:"omitempty,dive,required"`
+	Vendor     *string  `validate:"omitempty"`
+	Tags       []string `validate:"omitempty,dive,required"`
+	MinPrice   *uint32  `validate:"omitempty"`
+	MaxPrice   *uint32  `validate:"omitempty"`
 }
 
 type CursorPagination struct {
-	Cursor *string `query:"cursor" validate:"omitempty,base64"`
-	Limit  *int    `query:"limit" validate:"omitempty,min=1,max=100"`
+	Cursor *string `validate:"omitempty,base64"`
+	Limit  *int    `validate:"omitempty,min=1,max=100"`
 }
 
 type Sort struct {
-	SortBy *SortBy `query:"sort" validate:"omitempty,oneof=price_asc price_desc latest popular"`
+	SortBy *SortBy `validate:"omitempty,oneof=price_asc price_desc latest popular"`
 }
 
 type SortBy string

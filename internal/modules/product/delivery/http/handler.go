@@ -4,10 +4,8 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 
 	validator "github.com/go-playground/validator/v10"
 
@@ -36,8 +34,8 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		return
 	}
 
-	product := dto.ToDomain(&req)
-	if err := h.service.Create(c.Request.Context(), product); err != nil {
+	product, err := h.service.Create(c.Request.Context(), req)
+	if err != nil {
 		response.InternalError(c, err)
 		return
 	}
@@ -46,7 +44,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {
-	id, ok := web.ParseUUIDFromParam(c, "id")
+	productId, ok := web.ParseUUIDFromParam(c, "id")
 	if !ok {
 		return
 	}
@@ -56,17 +54,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updateFields := bson.M{
-		"updated_at": time.Now(),
-	}
-	if req.Name != nil {
-		updateFields["name"] = *req.Name
-	}
-	if req.Price != nil {
-		updateFields["price"] = *req.Price
-	}
-
-	if err := h.service.UpdatePartial(c.Request.Context(), id, updateFields); err != nil {
+	if err := h.service.UpdatePartial(c.Request.Context(), productId, req); err != nil {
 		if errors.Is(err, domain.ErrProductNotFound) {
 			response.NotFound(c, err)
 			return
@@ -79,12 +67,12 @@ func (h *ProductHandler) Update(c *gin.Context) {
 }
 
 func (h *ProductHandler) Delete(c *gin.Context) {
-	id, ok := web.ParseUUIDFromParam(c, "id")
+	productId, ok := web.ParseUUIDFromParam(c, "id")
 	if !ok {
 		return
 	}
 
-	if err := h.service.Delete(c.Request.Context(), id); err != nil {
+	if err := h.service.Delete(c.Request.Context(), productId); err != nil {
 		if errors.Is(err, domain.ErrProductNotFound) {
 			response.NotFound(c, err)
 			return
@@ -97,12 +85,12 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 }
 
 func (h *ProductHandler) GetByID(c *gin.Context) {
-	id, ok := web.ParseUUIDFromParam(c, "id")
+	productId, ok := web.ParseUUIDFromParam(c, "id")
 	if !ok {
 		return
 	}
 
-	product, err := h.service.GetByID(c.Request.Context(), id)
+	product, err := h.service.GetByID(c.Request.Context(), productId)
 	if err != nil {
 		if errors.Is(err, domain.ErrProductNotFound) {
 			response.NotFound(c, err)
@@ -116,22 +104,22 @@ func (h *ProductHandler) GetByID(c *gin.Context) {
 }
 
 func (h *ProductHandler) List(c *gin.Context) {
-	var filter domain.ListFilter
+	var filter dto.ListFilterRequest
 	if !web.BindAndValidate(c, h.validate, &filter) {
 		return
 	}
 
-	var pagination domain.CursorPagination
+	var pagination dto.CursorPaginationRequest
 	if !web.BindAndValidate(c, h.validate, &pagination) {
 		return
 	}
 
-	var sort domain.Sort
+	var sort dto.SortRequest
 	if !web.BindAndValidate(c, h.validate, &sort) {
 		return
 	}
 
-	products, nextCursor, err := h.service.List(c.Request.Context(), &filter, &pagination, &sort)
+	products, nextCursor, err := h.service.List(c.Request.Context(), filter, pagination, sort)
 	if err != nil {
 		response.InternalError(c, err)
 		return
@@ -141,6 +129,8 @@ func (h *ProductHandler) List(c *gin.Context) {
 }
 
 func (h *ProductHandler) AddReview(c *gin.Context) {
+	userID := web.GetUserID(c)
+
 	productID, ok := web.ParseUUIDFromParam(c, "id")
 	if !ok {
 		return
@@ -151,11 +141,7 @@ func (h *ProductHandler) AddReview(c *gin.Context) {
 		return
 	}
 
-	userID := web.GetUserID(c)
-
-	review := req.ToDomain(productID, userID)
-
-	if err := h.service.AddReview(c.Request.Context(), review); err != nil {
+	if err := h.service.AddReview(c.Request.Context(), req, userID, productID); err != nil {
 		response.InternalError(c, err)
 		return
 	}
@@ -164,12 +150,12 @@ func (h *ProductHandler) AddReview(c *gin.Context) {
 }
 
 func (h *ProductHandler) TrackRecentlyViewed(c *gin.Context) {
+	userID := web.GetUserID(c)
+	
 	productID, ok := web.ParseUUIDFromParam(c, "id")
 	if !ok {
 		return
 	}
-
-	userID := web.GetUserID(c) // dry
 
 	if err := h.service.TrackRecentlyViewedProduct(c.Request.Context(), userID, productID); err != nil {
 		response.InternalError(c, err)

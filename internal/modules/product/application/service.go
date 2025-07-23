@@ -2,21 +2,34 @@ package application
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 
+	"bobshop/internal/modules/product/delivery/http/dto"
 	"bobshop/internal/modules/product/domain"
 )
 
-const (
-	userRecentlyViewedKey = "user:%s:recently_viewed"
-)
+func fromCreateProductRequest(req dto.CreateProductRequest) *domain.Product {
+	return domain.NewProductBuilder(req.Name, req.Price).Build()
+}
 
-func buildUserRecentlyViewedKey(userID uuid.UUID) string {
-	return fmt.Sprintf(userRecentlyViewedKey, userID.String())
+func fromUpdateProductRequest(req dto.UpdateProductRequest) bson.M {
+	updateFields := bson.M{
+		"updated_at": time.Now(),
+	}
+	if req.Name != nil {
+		updateFields["name"] = *req.Name
+	}
+	if req.Price != nil {
+		updateFields["price"] = *req.Price
+	}
+	return updateFields
+}
+
+func fromAddReviewRequest(req dto.AddReviewRequest, productID, userID uuid.UUID) *domain.Review {
+	return domain.NewReview(productID, userID, req.Rating, req.Comment)
 }
 
 type ProductService struct {
@@ -31,12 +44,17 @@ func NewProductService(repo domain.ProductRepository, cache domain.Cache) *Produ
 	}
 }
 
-func (s *ProductService) Create(ctx context.Context, product *domain.Product) error {
-	return s.repo.Create(ctx, product)
+func (s *ProductService) Create(ctx context.Context, req dto.CreateProductRequest) (*domain.Product, error) {
+	product := fromCreateProductRequest(req)
+	if err := s.repo.Create(ctx, product); err != nil {
+		return nil, err
+	}
+	return product, nil
 }
 
-func (s *ProductService) UpdatePartial(ctx context.Context, productID uuid.UUID, fields bson.M) error {
-	return s.repo.UpdateFields(ctx, productID, fields)
+func (s *ProductService) UpdatePartial(ctx context.Context, productID uuid.UUID, req dto.UpdateProductRequest) error {
+	updateFields := fromUpdateProductRequest(req)
+	return s.repo.UpdateFields(ctx, productID, updateFields)
 }
 
 func (s *ProductService) Delete(ctx context.Context, id uuid.UUID) error {
@@ -47,25 +65,52 @@ func (s *ProductService) GetByID(ctx context.Context, id uuid.UUID) (*domain.Pro
 	return s.repo.GetByID(ctx, id)
 }
 
+func fromListFilterRequest(req dto.ListFilterRequest) *domain.ListFilter {
+	return &domain.ListFilter{
+		Name:       req.Name,
+		Categories: req.Categories,
+		Brands:     req.Brands,
+		Vendor:     req.Vendor,
+		Tags:       req.Tags,
+		MinPrice:   req.MinPrice,
+		MaxPrice:   req.MaxPrice,
+	}
+}
+
+func fromCursorPaginationRequest(req dto.CursorPaginationRequest) *domain.CursorPagination {
+	return &domain.CursorPagination{
+		Cursor: req.Cursor,
+		Limit:  req.Limit,
+	}
+}
+
+func fromSortRequest(req dto.SortRequest) *domain.Sort {
+	sortBy := domain.SortBy(*req.SortBy)
+	return &domain.Sort{
+		SortBy: &sortBy,
+	}
+}
+
 func (s *ProductService) List(
 	ctx context.Context,
-	filter *domain.ListFilter,
-	pagination *domain.CursorPagination,
-	sort *domain.Sort,
+	filterRequest dto.ListFilterRequest,
+	paginationRequest dto.CursorPaginationRequest,
+	sortRequest dto.SortRequest,
 ) ([]*domain.Product, *string, error) {
+	filter := fromListFilterRequest(filterRequest)
+	pagination := fromCursorPaginationRequest(paginationRequest)
+	sort := fromSortRequest(sortRequest)
 	return s.repo.List(ctx, filter, pagination, sort)
 }
 
 func (s *ProductService) AddReview(
 	ctx context.Context,
-	review *domain.Review,
+	req dto.AddReviewRequest,
+	userID uuid.UUID,
+	productID uuid.UUID,
 ) error {
-	product, err := s.repo.GetByID(ctx, review.ProductID)
-	if err != nil {
-		return err
-	}
-	product.AddReview(review)
-	return s.repo.UpdateFields(ctx, product.ID, bson.M{"reviews": product.Reviews})
+	review := fromAddReviewRequest(req, productID, userID)
+	return s.repo.AddReview(ctx, review)
 }
 
 func (s *ProductService) TrackRecentlyViewedProduct(
@@ -73,8 +118,7 @@ func (s *ProductService) TrackRecentlyViewedProduct(
 	userID uuid.UUID,
 	productID uuid.UUID,
 ) error {
-	key := buildUserRecentlyViewedKey(userID)
-	return s.cache.TrackRecentlyViewedProduct(ctx, key, float64(time.Now().Unix()), productID.String())
+	return s.cache.TrackRecentlyViewedProduct(ctx, userID, productID)
 }
 
 func (s *ProductService) GetRecentlyViewedProducts(
@@ -82,8 +126,7 @@ func (s *ProductService) GetRecentlyViewedProducts(
 	userID uuid.UUID,
 	limit int,
 ) ([]uuid.UUID, error) {
-	key := buildUserRecentlyViewedKey(userID)
-	res, err := s.cache.GetRecentlyViewedProducts(ctx, key, 0, int64(limit-1))
+	res, err := s.cache.GetRecentlyViewedProducts(ctx, userID, limit)
 	if err != nil {
 		return nil, err
 	}

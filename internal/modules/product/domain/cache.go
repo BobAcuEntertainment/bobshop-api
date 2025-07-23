@@ -1,8 +1,12 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 type Cache interface {
-	TrackRecentlyViewedProduct(ctx context.Context, key string, score float64, member string) error
-	GetRecentlyViewedProducts(ctx context.Context, key string, start, stop int64) ([]string, error)
+	TrackRecentlyViewedProduct(ctx context.Context, userID uuid.UUID, productID uuid.UUID) error
+	GetRecentlyViewedProducts(ctx context.Context, userID uuid.UUID, limit int) ([]string, error)
 }
