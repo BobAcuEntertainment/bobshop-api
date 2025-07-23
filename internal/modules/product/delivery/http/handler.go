@@ -43,7 +43,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "Product created", dto.ToResponse(product))
+	response.Created(c, "Product created", dto.ToCreateProductResponse(product))
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {
@@ -113,7 +113,7 @@ func (h *ProductHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, "Product found", gin.H{"product": dto.FromDomain(product)})
+	response.Success(c, http.StatusOK, "Product found", dto.ToProductResponse(product))
 }
 
 func (h *ProductHandler) List(c *gin.Context) {
@@ -132,13 +132,13 @@ func (h *ProductHandler) List(c *gin.Context) {
 		return
 	}
 
-	products, nextCursor, err := h.service.List(c.Request.Context(), &filter, &pagination, *sort.SortBy)
+	products, nextCursor, err := h.service.List(c.Request.Context(), &filter, &pagination, &sort)
 	if err != nil {
 		response.InternalError(c, err)
 		return
 	}
 
-	response.Success(c, http.StatusOK, "Products listed", gin.H{"products": dto.FromDomainList(products), "next_cursor": nextCursor})
+	response.Success(c, http.StatusOK, "Products listed", dto.ToListProductsResponse(products, nextCursor))
 }
 
 func (h *ProductHandler) AddReview(c *gin.Context) {

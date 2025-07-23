@@ -84,8 +84,8 @@ func (r *MongoProductRepository) List(
 	ctx context.Context,
 	filter *domain.ListFilter,
 	pagination *domain.CursorPagination,
-	sort domain.SortBy,
-) ([]*domain.Product, string, error) {
+	sort *domain.Sort,
+) ([]*domain.Product, *string, error) {
 	query := bson.M{"deleted_at": nil, "is_active": true}
 
 	if filter != nil {
@@ -119,7 +119,7 @@ func (r *MongoProductRepository) List(
 	opts := options.Find().SetLimit(int64(*pagination.Limit + 1)) // +1 for next cursor
 
 	var sortBson bson.D
-	switch sort {
+	switch *sort.SortBy {
 	case domain.SortByPriceAsc:
 		sortBson = bson.D{{Key: "price", Value: 1}, {Key: "_id", Value: 1}}
 	case domain.SortByPriceDesc:
@@ -136,7 +136,7 @@ func (r *MongoProductRepository) List(
 	if pagination.Cursor != nil {
 		cursorID, err := uuid.Parse(*pagination.Cursor)
 		if err != nil {
-			return nil, "", err
+			return nil, nil, err
 		}
 		// For cursor, assume cursor is last _id, and sort includes _id
 		query["_id"] = bson.M{"$gte": cursorID}
@@ -144,13 +144,13 @@ func (r *MongoProductRepository) List(
 
 	cursor, err := r.collection.Find(ctx, query, opts)
 	if err != nil {
-		return nil, "", err
+		return nil, nil, err
 	}
 	defer cursor.Close(ctx)
 
 	var products []*domain.Product
 	if err = cursor.All(ctx, &products); err != nil {
-		return nil, "", err
+		return nil, nil, err
 	}
 
 	var nextCursor string
@@ -159,5 +159,5 @@ func (r *MongoProductRepository) List(
 		products = products[:*pagination.Limit]
 	}
 
-	return products, nextCursor, nil
+	return products, &nextCursor, nil
 }

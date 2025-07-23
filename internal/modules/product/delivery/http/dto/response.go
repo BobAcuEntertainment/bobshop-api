@@ -10,7 +10,7 @@ type CreateProductResponse struct {
 	ID uuid.UUID `json:"id"`
 }
 
-func ToResponse(p *domain.Product) *CreateProductResponse {
+func ToCreateProductResponse(p *domain.Product) *CreateProductResponse {
 	return &CreateProductResponse{
 		ID: p.ID,
 	}
@@ -21,17 +21,25 @@ type ProductResponse struct {
 	Name string    `json:"name"`
 }
 
-func FromDomain(p *domain.Product) ProductResponse {
-	return ProductResponse{
+func ToProductResponse(p *domain.Product) *ProductResponse {
+	return &ProductResponse{
 		ID:   p.ID,
 		Name: p.Name,
 	}
 }
 
-func FromDomainList(ps []*domain.Product) []ProductResponse {
-	var res []ProductResponse
+type ListProductsResponse struct {
+	Products   []*ProductResponse `json:"products"`
+	NextCursor *string           `json:"next_cursor"`
+}
+
+func ToListProductsResponse(ps []*domain.Product, nextCursor *string) *ListProductsResponse {
+	var products []*ProductResponse
 	for _, p := range ps {
-		res = append(res, FromDomain(p))
+		products = append(products, ToProductResponse(p))
 	}
-	return res
+	return &ListProductsResponse{
+		Products:   products,
+		NextCursor: nextCursor,
+	}
 }

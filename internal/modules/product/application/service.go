@@ -51,8 +51,8 @@ func (s *ProductService) List(
 	ctx context.Context,
 	filter *domain.ListFilter,
 	pagination *domain.CursorPagination,
-	sort domain.SortBy,
-) ([]*domain.Product, string, error) {
+	sort *domain.Sort,
+) ([]*domain.Product, *string, error) {
 	return s.repo.List(ctx, filter, pagination, sort)
 }
 

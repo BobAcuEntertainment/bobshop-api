@@ -12,5 +12,5 @@ type ProductRepository interface {
 	UpdateFields(ctx context.Context, productID uuid.UUID, fields bson.M) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Product, error)
-	List(ctx context.Context, filter *ListFilter, pagination *CursorPagination, sort SortBy) (products []*Product, nextCursor string, err error)
+	List(ctx context.Context, filter *ListFilter, pagination *CursorPagination, sort *Sort) (products []*Product, nextCursor *string, err error)
 }
