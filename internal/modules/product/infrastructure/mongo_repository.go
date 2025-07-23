@@ -39,25 +39,22 @@ func NewMongoProductRepository(db *mongo.Database) *MongoProductRepository {
 }
 
 func (r *MongoProductRepository) Create(ctx context.Context, product *domain.Product) error {
-	if product.ID == uuid.Nil {
-		product.ID = uuid.New()
-	}
-	product.CreatedAt = time.Now()
-	product.UpdatedAt = time.Now()
 	_, err := r.collection.InsertOne(ctx, product)
 	return err
 }
 
-func (r *MongoProductRepository) Update(ctx context.Context, product *domain.Product) error {
-	_, err := r.GetByID(ctx, product.ID)
+func (r *MongoProductRepository) UpdateFields(ctx context.Context, productID uuid.UUID, fields bson.M) error {
+	filter := bson.M{"_id": productID}
+	update := bson.M{"$set": fields}
+
+	result, err := r.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
 		return domain.ErrProductNotFound
 	}
-	product.UpdatedAt = time.Now()
-	filter := bson.M{"_id": product.ID}
-	update := bson.M{"$set": product}
-	_, err = r.collection.UpdateOne(ctx, filter, update)
-	return err
+	return nil
 }
 
 func (r *MongoProductRepository) Delete(ctx context.Context, id uuid.UUID) error {

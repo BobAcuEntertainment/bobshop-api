@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"bobshop/internal/modules/product/domain"
 )
@@ -34,8 +35,8 @@ func (s *ProductService) Create(ctx context.Context, product *domain.Product) er
 	return s.repo.Create(ctx, product)
 }
 
-func (s *ProductService) Update(ctx context.Context, product *domain.Product) error {
-	return s.repo.Update(ctx, product)
+func (s *ProductService) UpdatePartial(ctx context.Context, productID uuid.UUID, fields bson.M) error {
+	return s.repo.UpdateFields(ctx, productID, fields)
 }
 
 func (s *ProductService) Delete(ctx context.Context, id uuid.UUID) error {
@@ -64,7 +65,7 @@ func (s *ProductService) AddReview(
 		return err
 	}
 	product.AddReview(review)
-	return s.repo.Update(ctx, product)
+	return s.repo.UpdateFields(ctx, product.ID, bson.M{"reviews": product.Reviews})
 }
 
 func (s *ProductService) TrackRecentlyViewedProduct(

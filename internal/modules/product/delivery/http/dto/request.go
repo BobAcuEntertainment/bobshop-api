@@ -7,33 +7,22 @@ import (
 )
 
 type CreateProductRequest struct {
-	Name string `json:"name" validate:"required"`
-	// so on
+	Name  string `json:"name" validate:"required"`
+	Price uint32 `json:"price" validate:"required"`
 }
 
-func (r *CreateProductRequest) ToDomain() *domain.Product {
-	return &domain.Product{
-		Name: r.Name,
-		// so on
-	}
+func ToDomain(r *CreateProductRequest) *domain.Product {
+	return domain.NewProductBuilder(r.Name, r.Price).Build()
 }
 
 type UpdateProductRequest struct {
-	Name string `json:"name" validate:"omitempty"`
-	// ...
-}
-
-func (r *UpdateProductRequest) ToDomain(id uuid.UUID) *domain.Product {
-	return &domain.Product{
-		ID:   id,
-		Name: r.Name,
-		// so on
-	}
+	Name  *string `json:"name"`
+	Price *uint32 `json:"price"`
 }
 
 type AddReviewRequest struct {
 	Rating  uint8  `json:"rating" validate:"required,min=1,max=5"`
-	Comment string `json:"comment" validate:"omitempty"`
+	Comment string `json:"comment"`
 }
 
 func (r *AddReviewRequest) ToDomain(productID, userID uuid.UUID) *domain.Review {

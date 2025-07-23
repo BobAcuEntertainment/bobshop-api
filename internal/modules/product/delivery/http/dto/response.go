@@ -8,20 +8,23 @@ import (
 
 type CreateProductResponse struct {
 	ID uuid.UUID `json:"id"`
-	// so on
+}
+
+func ToResponse(p *domain.Product) *CreateProductResponse {
+	return &CreateProductResponse{
+		ID: p.ID,
+	}
 }
 
 type ProductResponse struct {
 	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
-	// so on
 }
 
 func FromDomain(p *domain.Product) ProductResponse {
 	return ProductResponse{
 		ID:   p.ID,
 		Name: p.Name,
-		// so on
 	}
 }
 

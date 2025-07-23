@@ -4,9 +4,11 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 
 	validator "github.com/go-playground/validator/v10"
 
@@ -39,13 +41,13 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		return
 	}
 
-	product := req.ToDomain()
+	product := dto.ToDomain(&req)
 	if err := h.service.Create(c.Request.Context(), product); err != nil {
 		response.InternalError(c, err)
 		return
 	}
 
-	response.Created(c, "Product created", dto.CreateProductResponse{ID: product.ID})
+	response.Created(c, "Product created", dto.ToResponse(product))
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {
@@ -61,13 +63,22 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		response.BadRequest(c, "mismatched fields", err)
 		return
 	}
-	if err := h.validate.Struct(&req); err != nil {
+	if err := h.validate.Struct(req); err != nil {
 		response.BadRequest(c, "invalid fields", err)
 		return
 	}
 
-	product := req.ToDomain(id)
-	if err := h.service.Update(c.Request.Context(), product); err != nil {
+	updateFields := bson.M{
+		"updated_at": time.Now(),
+	}
+	if req.Name != nil {
+		updateFields["name"] = *req.Name
+	}
+	if req.Price != nil {
+		updateFields["price"] = *req.Price
+	}
+
+	if err := h.service.UpdatePartial(c.Request.Context(), id, updateFields); err != nil {
 		if errors.Is(err, domain.ErrProductNotFound) {
 			response.NotFound(c, err)
 			return
