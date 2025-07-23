@@ -33,7 +33,9 @@ func NewProductHandler(service *application.ProductService) *ProductHandler {
 
 func (h *ProductHandler) Create(c *gin.Context) {
 	var req dto.CreateProductRequest
-	web.BindAndValidate(c, h.validate, &req)
+	if !web.BindAndValidate(c, h.validate, &req) {
+		return
+	}
 
 	product := dto.ToDomain(&req)
 	if err := h.service.Create(c.Request.Context(), product); err != nil {
@@ -45,15 +47,15 @@ func (h *ProductHandler) Create(c *gin.Context) {
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		response.BadRequest(c, "invalid id", err)
+	id, ok := web.ParseUUIDFromParam(c, "id")
+	if !ok {
 		return
 	}
 
 	var req dto.UpdateProductRequest
-	web.BindAndValidate(c, h.validate, &req)
+	if !web.BindAndValidate(c, h.validate, &req) {
+		return
+	}
 
 	updateFields := bson.M{
 		"updated_at": time.Now(),
@@ -78,10 +80,8 @@ func (h *ProductHandler) Update(c *gin.Context) {
 }
 
 func (h *ProductHandler) Delete(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		response.BadRequest(c, "invalid id", err)
+	id, ok := web.ParseUUIDFromParam(c, "id")
+	if !ok {
 		return
 	}
 
@@ -98,10 +98,8 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 }
 
 func (h *ProductHandler) GetByID(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		response.BadRequest(c, "invalid id", err)
+	id, ok := web.ParseUUIDFromParam(c, "id")
+	if !ok {
 		return
 	}
 
@@ -147,10 +145,8 @@ func (h *ProductHandler) List(c *gin.Context) {
 }
 
 func (h *ProductHandler) AddReview(c *gin.Context) {
-	idStr := c.Param("id")
-	productID, err := uuid.Parse(idStr)
-	if err != nil {
-		response.BadRequest(c, "invalid id", err)
+	productID, ok := web.ParseUUIDFromParam(c, "id")
+	if !ok {
 		return
 	}
 
@@ -177,10 +173,8 @@ func (h *ProductHandler) AddReview(c *gin.Context) {
 }
 
 func (h *ProductHandler) TrackRecentlyViewed(c *gin.Context) {
-	idStr := c.Param("id")
-	productID, err := uuid.Parse(idStr)
-	if err != nil {
-		response.BadRequest(c, "invalid id", err)
+	productID, ok := web.ParseUUIDFromParam(c, "id")
+	if !ok {
 		return
 	}
 
