@@ -9,7 +9,13 @@ import (
 )
 
 func BindAndValidate(c *gin.Context, validate *validator.Validate, req any) bool {
-	if err := c.ShouldBindJSON(req); err != nil {
+	var err error
+	if c.Request.Method == "GET" {
+		err = c.ShouldBindQuery(req)
+	} else {
+		err = c.ShouldBindJSON(req)
+	}
+	if err != nil {
 		response.BadRequest(c, "mismatched fields", err)
 		return false
 	}

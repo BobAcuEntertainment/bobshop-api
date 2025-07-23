@@ -105,7 +105,11 @@ func (h *ProductHandler) GetByID(c *gin.Context) {
 
 	product, err := h.service.GetByID(c.Request.Context(), id)
 	if err != nil {
-		response.NotFound(c, err)
+		if errors.Is(err, domain.ErrProductNotFound) {
+			response.NotFound(c, err)
+			return
+		}
+		response.InternalError(c, err)
 		return
 	}
 
@@ -114,28 +118,21 @@ func (h *ProductHandler) GetByID(c *gin.Context) {
 
 func (h *ProductHandler) List(c *gin.Context) {
 	var filter domain.ListFilter
-	// Parse query params for filter, pagination, sort
-	name := c.Query("name")
-	if name != "" {
-		filter.Name = &name
+	if !web.BindAndValidate(c, h.validate, &filter) {
+		return
 	}
-	// Similarly for others: categories = c.QueryArray("categories") etc.
 
 	var pagination domain.CursorPagination
-	cursor := c.Query("cursor")
-	limit, _ := strconv.Atoi(c.Query("limit"))
-	if limit == 0 {
-		limit = 10 // default limit
+	if !web.BindAndValidate(c, h.validate, &pagination) {
+		return
 	}
 
-	// using new service of pagiantion
-	pagination.Cursor = cursor
-	pagination.Limit = limit
+	var sort domain.Sort
+	if !web.BindAndValidate(c, h.validate, &sort) {
+		return
+	}
 
-	sortStr := c.Query("sort")
-	sort := domain.SortBy(sortStr)
-
-	products, nextCursor, err := h.service.List(c.Request.Context(), &filter, &pagination, sort)
+	products, nextCursor, err := h.service.List(c.Request.Context(), &filter, &pagination, *sort.SortBy)
 	if err != nil {
 		response.InternalError(c, err)
 		return

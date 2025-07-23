@@ -116,7 +116,7 @@ func (r *MongoProductRepository) List(
 		}
 	}
 
-	opts := options.Find().SetLimit(int64(pagination.Limit + 1)) // +1 for next cursor
+	opts := options.Find().SetLimit(int64(*pagination.Limit + 1)) // +1 for next cursor
 
 	var sortBson bson.D
 	switch sort {
@@ -133,8 +133,8 @@ func (r *MongoProductRepository) List(
 	}
 	opts.SetSort(sortBson)
 
-	if pagination.Cursor != "" {
-		cursorID, err := uuid.Parse(pagination.Cursor)
+	if pagination.Cursor != nil {
+		cursorID, err := uuid.Parse(*pagination.Cursor)
 		if err != nil {
 			return nil, "", err
 		}
@@ -154,9 +154,9 @@ func (r *MongoProductRepository) List(
 	}
 
 	var nextCursor string
-	if len(products) > pagination.Limit {
-		nextCursor = products[pagination.Limit].ID.String()
-		products = products[:pagination.Limit]
+	if len(products) > *pagination.Limit {
+		nextCursor = products[*pagination.Limit].ID.String()
+		products = products[:*pagination.Limit]
 	}
 
 	return products, nextCursor, nil
