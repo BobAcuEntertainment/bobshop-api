@@ -1,6 +1,6 @@
 DEFAULT_GOAL := build
 
-.PHONY: check style diag build run dev docs
+.PHONY: check style build run dev docs
 
 check:
 	go mod tidy && go mod verify && go vet ./...
@@ -11,9 +11,7 @@ style:
 	-project-name bobshop \
 	-format ./...
 
-diag: check style
-
-build: diag
+build: check style
 	go build -o bin/app cmd/server/main.go
 
 run: build

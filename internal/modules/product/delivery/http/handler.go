@@ -16,6 +16,7 @@ import (
 	"bobshop/internal/modules/product/delivery/http/dto"
 	"bobshop/internal/modules/product/domain"
 	"bobshop/internal/platform/response"
+	"bobshop/internal/platform/web"
 )
 
 type ProductHandler struct {
@@ -32,14 +33,7 @@ func NewProductHandler(service *application.ProductService) *ProductHandler {
 
 func (h *ProductHandler) Create(c *gin.Context) {
 	var req dto.CreateProductRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "mismatched fields", err)
-		return
-	}
-	if err := h.validate.Struct(&req); err != nil {
-		response.BadRequest(c, "invalid fields", err)
-		return
-	}
+	web.BindAndValidate(c, h.validate, &req)
 
 	product := dto.ToDomain(&req)
 	if err := h.service.Create(c.Request.Context(), product); err != nil {
@@ -59,14 +53,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 	}
 
 	var req dto.UpdateProductRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "mismatched fields", err)
-		return
-	}
-	if err := h.validate.Struct(req); err != nil {
-		response.BadRequest(c, "invalid fields", err)
-		return
-	}
+	web.BindAndValidate(c, h.validate, &req)
 
 	updateFields := bson.M{
 		"updated_at": time.Now(),
