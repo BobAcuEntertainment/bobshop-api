@@ -6,6 +6,10 @@ import (
 	"bobshop/internal/platform/config"
 )
 
+const (
+	AccessTokenCookieName = "access_token"
+)
+
 type CookieManager struct {
 	cfg *config.CookieConfig
 }

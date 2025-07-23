@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 
 	validator "github.com/go-playground/validator/v10"
@@ -148,16 +147,11 @@ func (h *ProductHandler) AddReview(c *gin.Context) {
 	}
 
 	var req dto.AddReviewRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "mismatched fields", err)
-		return
-	}
-	if err := h.validate.Struct(&req); err != nil {
-		response.BadRequest(c, "invalid fields", err)
+	if !web.BindAndValidate(c, h.validate, &req) {
 		return
 	}
 
-	userID := uuid.MustParse(c.GetString("userId"))
+	userID := web.GetUserID(c)
 
 	review := req.ToDomain(productID, userID)
 
@@ -175,7 +169,7 @@ func (h *ProductHandler) TrackRecentlyViewed(c *gin.Context) {
 		return
 	}
 
-	userID := uuid.MustParse(c.GetString("user_id")) // dry
+	userID := web.GetUserID(c) // dry
 
 	if err := h.service.TrackRecentlyViewedProduct(c.Request.Context(), userID, productID); err != nil {
 		response.InternalError(c, err)
@@ -186,7 +180,7 @@ func (h *ProductHandler) TrackRecentlyViewed(c *gin.Context) {
 }
 
 func (h *ProductHandler) GetRecentlyViewed(c *gin.Context) {
-	userID := uuid.MustParse(c.GetString("user_id")) // dry
+	userID := web.GetUserID(c)
 
 	// dry
 	limit, _ := strconv.Atoi(c.Query("limit"))

@@ -16,13 +16,13 @@ func ToDomain(r *CreateProductRequest) *domain.Product {
 }
 
 type UpdateProductRequest struct {
-	Name  *string `json:"name"`
-	Price *uint32 `json:"price"`
+	Name  *string `json:"name" validate:"omitempty"`
+	Price *uint32 `json:"price" validate:"omitempty"`
 }
 
 type AddReviewRequest struct {
 	Rating  uint8  `json:"rating" validate:"required,min=1,max=5"`
-	Comment string `json:"comment"`
+	Comment string `json:"comment" validate:"omitempty"`
 }
 
 func (r *AddReviewRequest) ToDomain(productID, userID uuid.UUID) *domain.Review {

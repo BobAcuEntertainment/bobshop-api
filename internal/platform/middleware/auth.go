@@ -5,21 +5,18 @@ import (
 
 	"bobshop/internal/platform/response"
 	"bobshop/internal/platform/security"
-)
-
-const (
-	accessTokenCookieName = "access_token"
+	"bobshop/internal/platform/web"
 )
 
 func AuthMiddleware(parser security.Tokenizer) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token, _ := c.Cookie(accessTokenCookieName)
+		token, _ := c.Cookie(web.AccessTokenCookieName)
 		claims, err := parser.ParseToken(token)
 		if err != nil {
 			response.Unauthorized(c, err)
 			return
 		}
-		c.Set("userID", claims["sub"])
-		c.Set("role", claims["role"])
+		c.Set(web.UserIDKey, claims["sub"])
+		c.Set(web.RoleKey, claims["role"])
 	}
 }
