@@ -30,7 +30,7 @@ func ToProductResponse(p *domain.Product) *ProductResponse {
 
 type ListProductsResponse struct {
 	Products   []*ProductResponse `json:"products"`
-	NextCursor *string           `json:"next_cursor"`
+	NextCursor *string            `json:"next_cursor"`
 }
 
 func ToListProductsResponse(ps []*domain.Product, nextCursor *string) *ListProductsResponse {

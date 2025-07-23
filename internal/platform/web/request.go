@@ -1,11 +1,12 @@
 package web
 
 import (
-	"bobshop/internal/platform/response"
-
 	"github.com/gin-gonic/gin"
-	validator "github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+
+	validator "github.com/go-playground/validator/v10"
+
+	"bobshop/internal/platform/response"
 )
 
 func BindAndValidate(c *gin.Context, validate *validator.Validate, req any) bool {
