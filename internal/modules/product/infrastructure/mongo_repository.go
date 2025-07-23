@@ -58,18 +58,16 @@ func (r *MongoProductRepository) UpdateFields(ctx context.Context, productID uui
 }
 
 func (r *MongoProductRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	var product domain.Product
 	filter := bson.M{"_id": id, "deleted_at": nil}
-	err := r.collection.FindOne(ctx, filter).Decode(&product)
-	if err == mongo.ErrNoDocuments {
+	update := bson.M{"$set": bson.M{"deleted_at": time.Now(), "is_active": false}}
+	result, err := r.collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
 		return domain.ErrProductNotFound
 	}
-	now := time.Now()
-	product.DeletedAt = &now
-	product.IsActive = false
-	update := bson.M{"$set": product}
-	_, err = r.collection.UpdateOne(ctx, filter, update)
-	return err
+	return nil
 }
 
 func (r *MongoProductRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Product, error) {
