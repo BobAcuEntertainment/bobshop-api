@@ -62,15 +62,15 @@ func (r *MongoProductRepository) AddReview(ctx context.Context, review *domain.R
 	filter := bson.M{"user_id": review.UserID, "product_id": review.ProductID}
 	count, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
-			return err
+		return err
 	}
 	if count > 0 {
-			return domain.ErrReviewAlreadyExists
+		return domain.ErrReviewAlreadyExists
 	}
-	
+
 	update := bson.M{
-			"$push": bson.M{"reviews": review},
-			"$inc": bson.M{fmt.Sprintf("stars.%d", review.Rating-1): 1},
+		"$push": bson.M{"reviews": review},
+		"$inc":  bson.M{fmt.Sprintf("stars.%d", review.Rating-1): 1},
 	}
 
 	return r.UpdateFields(ctx, review.ProductID, update)

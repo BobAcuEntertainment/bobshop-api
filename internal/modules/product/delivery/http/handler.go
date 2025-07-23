@@ -151,7 +151,7 @@ func (h *ProductHandler) AddReview(c *gin.Context) {
 
 func (h *ProductHandler) TrackRecentlyViewed(c *gin.Context) {
 	userID := web.GetUserID(c)
-	
+
 	productID, ok := web.ParseUUIDFromParam(c, "id")
 	if !ok {
 		return
