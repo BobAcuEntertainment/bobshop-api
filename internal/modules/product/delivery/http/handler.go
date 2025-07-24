@@ -44,8 +44,9 @@ func (h *ProductHandler) Create(c *gin.Context) {
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {
-	productId, ok := web.ParseUUIDFromParam(c, "id")
-	if !ok {
+	productId, err := web.GetIDParam(c)
+	if err != nil {
+		response.BadRequest(c, "invalid id", err)
 		return
 	}
 
@@ -54,7 +55,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.UpdatePartial(c.Request.Context(), productId, req); err != nil {
+	if err := h.service.Update(c.Request.Context(), productId, req); err != nil {
 		if errors.Is(err, domain.ErrProductNotFound) {
 			response.NotFound(c, err)
 			return
@@ -63,12 +64,13 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		return
 	}
 
-	response.SimpleSuccess(c, "Product updated")
+	response.NoContent(c, "Product updated")
 }
 
 func (h *ProductHandler) Delete(c *gin.Context) {
-	productId, ok := web.ParseUUIDFromParam(c, "id")
-	if !ok {
+	productId, err := web.GetIDParam(c)
+	if err != nil {
+		response.BadRequest(c, "invalid id", err)
 		return
 	}
 
@@ -81,12 +83,13 @@ func (h *ProductHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	response.Deleted(c, "Product deleted")
+	response.NoContent(c, "Product deleted")
 }
 
 func (h *ProductHandler) GetByID(c *gin.Context) {
-	productId, ok := web.ParseUUIDFromParam(c, "id")
-	if !ok {
+	productId, err := web.GetIDParam(c)
+	if err != nil {
+		response.BadRequest(c, "invalid id", err)
 		return
 	}
 
@@ -131,8 +134,9 @@ func (h *ProductHandler) List(c *gin.Context) {
 func (h *ProductHandler) AddReview(c *gin.Context) {
 	userID := web.GetUserID(c)
 
-	productID, ok := web.ParseUUIDFromParam(c, "id")
-	if !ok {
+	productID, err := web.GetIDParam(c)
+	if err != nil {
+		response.BadRequest(c, "invalid id", err)
 		return
 	}
 
@@ -152,8 +156,9 @@ func (h *ProductHandler) AddReview(c *gin.Context) {
 func (h *ProductHandler) TrackRecentlyViewed(c *gin.Context) {
 	userID := web.GetUserID(c)
 
-	productID, ok := web.ParseUUIDFromParam(c, "id")
-	if !ok {
+	productID, err := web.GetIDParam(c)
+	if err != nil {
+		response.BadRequest(c, "invalid id", err)
 		return
 	}
 

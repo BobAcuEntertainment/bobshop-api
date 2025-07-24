@@ -44,7 +44,7 @@ func (r *MongoProductRepository) Create(ctx context.Context, product *domain.Pro
 	return err
 }
 
-func (r *MongoProductRepository) UpdateFields(ctx context.Context, productID uuid.UUID, fields bson.M) error {
+func (r *MongoProductRepository) Update(ctx context.Context, productID uuid.UUID, fields bson.M) error {
 	filter := bson.M{"_id": productID}
 	update := bson.M{"$set": fields}
 
@@ -73,7 +73,7 @@ func (r *MongoProductRepository) AddReview(ctx context.Context, review *domain.R
 		"$inc":  bson.M{fmt.Sprintf("stars.%d", review.Rating-1): 1},
 	}
 
-	return r.UpdateFields(ctx, review.ProductID, update)
+	return r.Update(ctx, review.ProductID, update)
 }
 
 func (r *MongoProductRepository) Delete(ctx context.Context, id uuid.UUID) error {

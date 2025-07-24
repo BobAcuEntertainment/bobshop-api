@@ -41,7 +41,7 @@ func Created(c *gin.Context, message string, data any) {
 	Success(c, http.StatusCreated, message, data)
 }
 
-func Deleted(c *gin.Context, message string) {
+func NoContent(c *gin.Context, message string) {
 	Success(c, http.StatusNoContent, message, nil)
 }
 

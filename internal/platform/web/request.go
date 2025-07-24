@@ -2,7 +2,6 @@ package web
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 
 	validator "github.com/go-playground/validator/v10"
 
@@ -25,14 +24,4 @@ func BindAndValidate(c *gin.Context, validate *validator.Validate, req any) bool
 		return false
 	}
 	return true
-}
-
-func ParseUUIDFromParam(c *gin.Context, paramName string) (uuid.UUID, bool) {
-	param := c.Param(paramName)
-	id, err := uuid.Parse(param)
-	if err != nil {
-		response.BadRequest(c, "invalid id", err)
-		return uuid.Nil, false
-	}
-	return id, true
 }

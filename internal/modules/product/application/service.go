@@ -52,9 +52,9 @@ func (s *ProductService) Create(ctx context.Context, req dto.CreateProductReques
 	return product, nil
 }
 
-func (s *ProductService) UpdatePartial(ctx context.Context, productID uuid.UUID, req dto.UpdateProductRequest) error {
+func (s *ProductService) Update(ctx context.Context, productID uuid.UUID, req dto.UpdateProductRequest) error {
 	updateFields := fromUpdateProductRequest(req)
-	return s.repo.UpdateFields(ctx, productID, updateFields)
+	return s.repo.Update(ctx, productID, updateFields)
 }
 
 func (s *ProductService) Delete(ctx context.Context, id uuid.UUID) error {

@@ -9,7 +9,7 @@ import (
 
 type ProductRepository interface {
 	Create(ctx context.Context, product *Product) error
-	UpdateFields(ctx context.Context, productID uuid.UUID, fields bson.M) error
+	Update(ctx context.Context, productID uuid.UUID, fields bson.M) error
 	AddReview(ctx context.Context, review *Review) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (*Product, error)

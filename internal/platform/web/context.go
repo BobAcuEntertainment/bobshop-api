@@ -8,6 +8,7 @@ import (
 const (
 	UserIDKey = "user_id"
 	RoleKey   = "role"
+	IDParamKey = "id"
 )
 
 func GetUserID(c *gin.Context) uuid.UUID {
@@ -16,4 +17,13 @@ func GetUserID(c *gin.Context) uuid.UUID {
 
 func GetRole(c *gin.Context) string {
 	return c.GetString(RoleKey)
+}
+
+func GetIDParam(c *gin.Context) (uuid.UUID, error) {
+	param := c.Param(IDParamKey)
+	id, err := uuid.Parse(param)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return id, nil
 }
