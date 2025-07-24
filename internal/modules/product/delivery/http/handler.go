@@ -30,7 +30,8 @@ func NewProductHandler(service *application.ProductService) *ProductHandler {
 
 func (h *ProductHandler) Create(c *gin.Context) {
 	var req dto.CreateProductRequest
-	if !web.BindAndValidate(c, h.validate, &req) {
+	if err := web.BindAndValidate(c, h.validate, &req); err != nil {
+		response.BadRequest(c, "invalid fields", err)
 		return
 	}
 
@@ -51,7 +52,8 @@ func (h *ProductHandler) Update(c *gin.Context) {
 	}
 
 	var req dto.UpdateProductRequest
-	if !web.BindAndValidate(c, h.validate, &req) {
+	if err := web.BindAndValidate(c, h.validate, &req); err != nil {
+		response.BadRequest(c, "invalid fields", err)
 		return
 	}
 
@@ -108,17 +110,20 @@ func (h *ProductHandler) GetByID(c *gin.Context) {
 
 func (h *ProductHandler) List(c *gin.Context) {
 	var filter dto.ListFilterRequest
-	if !web.BindAndValidate(c, h.validate, &filter) {
+	if err := web.BindAndValidate(c, h.validate, &filter); err != nil {
+		response.BadRequest(c, "invalid fields", err)
 		return
 	}
 
 	var pagination dto.CursorPaginationRequest
-	if !web.BindAndValidate(c, h.validate, &pagination) {
+	if err := web.BindAndValidate(c, h.validate, &pagination); err != nil {
+		response.BadRequest(c, "invalid fields", err)
 		return
 	}
 
 	var sort dto.SortRequest
-	if !web.BindAndValidate(c, h.validate, &sort) {
+	if err := web.BindAndValidate(c, h.validate, &sort); err != nil {
+		response.BadRequest(c, "invalid fields", err)
 		return
 	}
 
@@ -141,7 +146,8 @@ func (h *ProductHandler) AddReview(c *gin.Context) {
 	}
 
 	var req dto.AddReviewRequest
-	if !web.BindAndValidate(c, h.validate, &req) {
+	if err := web.BindAndValidate(c, h.validate, &req); err != nil {
+		response.BadRequest(c, "invalid fields", err)
 		return
 	}
 
