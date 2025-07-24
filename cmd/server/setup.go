@@ -26,14 +26,11 @@ func provideGinEngine(cfg *config.ServerConfig) *gin.Engine {
 	} else {
 		engine.SetTrustedProxies(cfg.TrustedProxies)
 	}
-	switch cfg.Mode {
-	case "debug":
-		gin.SetMode(gin.DebugMode)
-	case "test":
-		gin.SetMode(gin.TestMode)
-	case "release":
+	if config.IsStaging() {
 		gin.SetMode(gin.ReleaseMode)
-	default:
+	} else if config.IsProduction() {
+		gin.SetMode(gin.TestMode)
+	} else {
 		gin.SetMode(gin.DebugMode)
 	}
 	return engine

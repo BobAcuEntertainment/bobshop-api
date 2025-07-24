@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -11,12 +12,19 @@ import (
 )
 
 func ConnectRedis(cfg *config.RedisConfig) (*redis.Client, func(), error) {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     cfg.Addr,
-		Password: cfg.Password,
-		DB:       cfg.DB,
-	})
+	opts := &redis.Options{
+		Addr: fmt.Sprintf("%s:%s", cfg.Host, cfg.Port),
+		DB:   cfg.DB,
+	}
 
+	if cfg.Username != "" {
+		opts.Username = cfg.Username
+	}
+	if cfg.Password != "" {
+		opts.Password = cfg.Password
+	}
+
+	rdb := redis.NewClient(opts)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_, err := rdb.Ping(ctx).Result()

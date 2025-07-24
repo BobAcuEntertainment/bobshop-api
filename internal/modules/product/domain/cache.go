@@ -7,6 +7,6 @@ import (
 )
 
 type Cache interface {
-	TrackRecentlyViewedProduct(ctx context.Context, userID uuid.UUID, productID uuid.UUID) error
-	GetRecentlyViewedProducts(ctx context.Context, userID uuid.UUID, limit int) ([]string, error)
+	TrackRecentlyViewed(ctx context.Context, userID uuid.UUID, productID uuid.UUID) error
+	GetRecentlyViewed(ctx context.Context, userID uuid.UUID) ([]string, error)
 }

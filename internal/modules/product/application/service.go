@@ -113,20 +113,19 @@ func (s *ProductService) AddReview(
 	return s.repo.AddReview(ctx, review)
 }
 
-func (s *ProductService) TrackRecentlyViewedProduct(
+func (s *ProductService) TrackRecentlyViewed(
 	ctx context.Context,
 	userID uuid.UUID,
 	productID uuid.UUID,
 ) error {
-	return s.cache.TrackRecentlyViewedProduct(ctx, userID, productID)
+	return s.cache.TrackRecentlyViewed(ctx, userID, productID)
 }
 
-func (s *ProductService) GetRecentlyViewedProducts(
+func (s *ProductService) GetRecentlyViewed(
 	ctx context.Context,
 	userID uuid.UUID,
-	limit int,
 ) ([]uuid.UUID, error) {
-	res, err := s.cache.GetRecentlyViewedProducts(ctx, userID, limit)
+	res, err := s.cache.GetRecentlyViewed(ctx, userID)
 	if err != nil {
 		return nil, err
 	}

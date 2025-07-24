@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"time"
 
 	"bobshop/internal/platform/config"
 )
@@ -26,7 +27,11 @@ func (c *CookieManager) getSameSite() http.SameSite {
 }
 
 func (c *CookieManager) GetMaxAge() int {
-	return c.cfg.MaxAge
+	cookieMaxAge, err := time.ParseDuration(c.cfg.MaxAge)
+	if err != nil {
+		return 0
+	}
+	return int(cookieMaxAge.Seconds())
 }
 
 func (c *CookieManager) BuildCookie(name, value string, maxAge int) *http.Cookie {

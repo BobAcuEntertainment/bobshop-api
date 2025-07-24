@@ -3,7 +3,6 @@ package http
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -168,7 +167,7 @@ func (h *ProductHandler) TrackRecentlyViewed(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.TrackRecentlyViewedProduct(c.Request.Context(), userID, productID); err != nil {
+	if err := h.service.TrackRecentlyViewed(c.Request.Context(), userID, productID); err != nil {
 		response.InternalError(c, err)
 		return
 	}
@@ -179,13 +178,7 @@ func (h *ProductHandler) TrackRecentlyViewed(c *gin.Context) {
 func (h *ProductHandler) GetRecentlyViewed(c *gin.Context) {
 	userID := web.GetUserID(c)
 
-	// dry
-	limit, _ := strconv.Atoi(c.Query("limit"))
-	if limit == 0 {
-		limit = 10
-	}
-
-	ids, err := h.service.GetRecentlyViewedProducts(c.Request.Context(), userID, limit)
+	ids, err := h.service.GetRecentlyViewed(c.Request.Context(), userID)
 	if err != nil {
 		response.InternalError(c, err)
 		return

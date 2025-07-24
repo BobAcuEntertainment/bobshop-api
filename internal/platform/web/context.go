@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	UserIDKey = "user_id"
-	RoleKey   = "role"
+	UserIDKey  = "user_id"
+	RoleKey    = "role"
 	IDParamKey = "id"
 )
 

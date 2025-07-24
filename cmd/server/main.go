@@ -13,15 +13,16 @@ import (
 )
 
 func main() {
+	envPath := flag.String("env", ".env", "env file path")
 	configPath := flag.String("config", "./configs/config.dev.yaml", "config file path")
 	flag.Parse()
-	cfg, err := config.LoadConfig(*configPath)
+	cfg, err := config.LoadConfig(*envPath, *configPath)
 	if err != nil {
 		log.Fatalf("could not load config: %v", err)
 	}
 
 	// Configure toggles exposing backend error details (enable only in development).
-	response.Configure(cfg.App.Env == "development")
+	response.Configure(config.IsDevelopment())
 
 	app, cleanup, err := buildApp(cfg)
 	if err != nil {

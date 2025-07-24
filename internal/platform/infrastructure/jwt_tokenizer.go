@@ -17,10 +17,14 @@ func NewJwtTokenizer(cfg *config.JWTConfig) *JwtTokenizer {
 }
 
 func (j *JwtTokenizer) GenerateToken(userID string, role string) (string, error) {
+	exp, err := time.ParseDuration(j.cfg.ExpirationHours)
+	if err != nil {
+		return "", err
+	}
 	claims := jwt.MapClaims{
 		"sub":  userID,
 		"role": role,
-		"exp":  time.Now().Add(time.Duration(j.cfg.ExpirationHours) * time.Hour).Unix(),
+		"exp":  time.Now().Add(exp).Unix(),
 		"iat":  time.Now().Unix(),
 	}
 
