@@ -11,11 +11,11 @@ import (
 	"bobshop/internal/modules/product/domain"
 )
 
-func fromCreateProductRequest(req dto.CreateProductRequest) *domain.Product {
+func fromCreateRequest(req dto.CreateRequest) *domain.Product {
 	return domain.NewProductBuilder(req.Name, req.Price).Build()
 }
 
-func fromUpdateProductRequest(req dto.UpdateProductRequest) bson.M {
+func fromUpdateRequest(req dto.UpdateRequest) bson.M {
 	updateFields := bson.M{
 		"updated_at": time.Now(),
 	}
@@ -44,16 +44,16 @@ func NewProductService(repo domain.ProductRepository, cache domain.Cache) *Produ
 	}
 }
 
-func (s *ProductService) Create(ctx context.Context, req dto.CreateProductRequest) (*domain.Product, error) {
-	product := fromCreateProductRequest(req)
+func (s *ProductService) Create(ctx context.Context, req dto.CreateRequest) (*domain.Product, error) {
+	product := fromCreateRequest(req)
 	if err := s.repo.Create(ctx, product); err != nil {
 		return nil, err
 	}
 	return product, nil
 }
 
-func (s *ProductService) Update(ctx context.Context, productID uuid.UUID, req dto.UpdateProductRequest) error {
-	updateFields := fromUpdateProductRequest(req)
+func (s *ProductService) Update(ctx context.Context, productID uuid.UUID, req dto.UpdateRequest) error {
+	updateFields := fromUpdateRequest(req)
 	return s.repo.Update(ctx, productID, updateFields)
 }
 

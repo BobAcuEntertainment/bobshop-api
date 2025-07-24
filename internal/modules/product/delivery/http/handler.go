@@ -29,7 +29,7 @@ func NewProductHandler(service *application.ProductService) *ProductHandler {
 }
 
 func (h *ProductHandler) Create(c *gin.Context) {
-	var req dto.CreateProductRequest
+	var req dto.CreateRequest
 	if err := web.BindAndValidate(c, h.validate, &req); err != nil {
 		response.BadRequest(c, "invalid fields", err)
 		return
@@ -41,7 +41,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		return
 	}
 
-	response.Created(c, "Product created", dto.ToCreateProductResponse(product))
+	response.Created(c, "Product created", dto.ToCreateResponse(product))
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {
@@ -51,7 +51,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var req dto.UpdateProductRequest
+	var req dto.UpdateRequest
 	if err := web.BindAndValidate(c, h.validate, &req); err != nil {
 		response.BadRequest(c, "invalid fields", err)
 		return
@@ -111,19 +111,19 @@ func (h *ProductHandler) GetByID(c *gin.Context) {
 func (h *ProductHandler) List(c *gin.Context) {
 	var filter dto.ListFilterRequest
 	if err := web.BindAndValidate(c, h.validate, &filter); err != nil {
-		response.BadRequest(c, "invalid fields", err)
+		response.BadRequest(c, "invalid filter fields", err)
 		return
 	}
 
 	var pagination dto.CursorPaginationRequest
 	if err := web.BindAndValidate(c, h.validate, &pagination); err != nil {
-		response.BadRequest(c, "invalid fields", err)
+		response.BadRequest(c, "invalid pagination fields", err)
 		return
 	}
 
 	var sort dto.SortRequest
 	if err := web.BindAndValidate(c, h.validate, &sort); err != nil {
-		response.BadRequest(c, "invalid fields", err)
+		response.BadRequest(c, "invalid sort fields", err)
 		return
 	}
 
@@ -133,7 +133,7 @@ func (h *ProductHandler) List(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, "Products listed", dto.ToListProductsResponse(products, nextCursor))
+	response.Success(c, http.StatusOK, "Products listed", dto.ToListResponse(products, nextCursor))
 }
 
 func (h *ProductHandler) AddReview(c *gin.Context) {

@@ -1,11 +1,11 @@
 package dto
 
-type CreateProductRequest struct {
+type CreateRequest struct {
 	Name  string `json:"name" validate:"required"`
 	Price uint32 `json:"price" validate:"required"`
 }
 
-type UpdateProductRequest struct {
+type UpdateRequest struct {
 	Name  *string `json:"name" validate:"omitempty"`
 	Price *uint32 `json:"price" validate:"omitempty"`
 }

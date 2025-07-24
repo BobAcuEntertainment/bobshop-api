@@ -6,12 +6,12 @@ import (
 	"bobshop/internal/modules/product/domain"
 )
 
-type CreateProductResponse struct {
+type CreateResponse struct {
 	ID uuid.UUID `json:"id"`
 }
 
-func ToCreateProductResponse(p *domain.Product) *CreateProductResponse {
-	return &CreateProductResponse{
+func ToCreateResponse(p *domain.Product) *CreateResponse {
+	return &CreateResponse{
 		ID: p.ID,
 	}
 }
@@ -28,17 +28,17 @@ func ToProductResponse(p *domain.Product) *ProductResponse {
 	}
 }
 
-type ListProductsResponse struct {
+type ListResponse struct {
 	Products   []*ProductResponse `json:"products"`
 	NextCursor *string            `json:"next_cursor"`
 }
 
-func ToListProductsResponse(ps []*domain.Product, nextCursor *string) *ListProductsResponse {
+func ToListResponse(ps []*domain.Product, nextCursor *string) *ListResponse {
 	var products []*ProductResponse
 	for _, p := range ps {
 		products = append(products, ToProductResponse(p))
 	}
-	return &ListProductsResponse{
+	return &ListResponse{
 		Products:   products,
 		NextCursor: nextCursor,
 	}
